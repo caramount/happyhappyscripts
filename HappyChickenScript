@@ -11,22 +11,36 @@ public class HappyChickenScript : MonoBehaviour
 	public GameObject egg1;
 	public GameObject egg2;
 	public GameObject chicken;
+	public GameObject chickenGround;
 	public GameObject chick;
 
 	public Sprite moving;
 	public Sprite laying;
 	public int chickSpeed;
+	public int chickenHop;
 
 	public GUIText scoreText;
 	private int score = 0;
 
+	void Start()
+	{
+		// Ignore collision between player and background colliders (this assumes player is on layer Ignore Raycast)
+		Physics2D.IgnoreLayerCollision(2, 0, true);
+	}
 	void OnMouseDown()
 	{
 		// Get mouse position and move bird to it
 		Vector3 mouseWorldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 		mouseWorldPoint.z = -1;
 		chicken.transform.position = mouseWorldPoint;
+
+		// Position ground under bird (to catch it after bounce)
+		Vector3 groundPosition = mouseWorldPoint;
+		groundPosition.y -= 1.5f;
+		chickenGround.transform.position = groundPosition;
+
 		chicken.GetComponent<SpriteRenderer>().sprite = laying;
+		chicken.GetComponent<Rigidbody2D>().velocity = Vector3.up * chickenHop;
 		audio.Play();
 
 		StartCoroutine("eggChick");
