@@ -1,0 +1,38 @@
+// Used by TransitionButton script so must be attached to same game object
+
+using UnityEngine;
+using System.Collections;
+
+public class SceneFader : MonoBehaviour
+{
+	public Texture2D fadeTexture;
+	public float fadeSpeed;				
+
+	private int drawDepth = -1000; 		//ensures that fade texture will render on top of everything
+	private float alpha = 1.0f;
+	private int fadeDirection = -1;		//-1 means fade in, 1 means fade out
+
+	// Called for rendering/handling GUI events, gets called over and over to create fade effect
+	void OnGUI ()
+	{
+		alpha += fadeDirection * fadeSpeed * Time.deltaTime;
+		alpha = Mathf.Clamp01(alpha);
+
+		GUI.color = new Color (GUI.color.r, GUI.color.g, GUI.color.b, alpha);
+		GUI.depth = drawDepth;
+		GUI.DrawTexture(new Rect(0,0,Screen.width,Screen.height), fadeTexture);
+	}
+
+	public float beginFade(int direction) 
+	{
+		fadeDirection = direction;
+		// Determine time it will take to fade out and return that
+		return (0.5f/fadeSpeed);
+	}
+
+	// Fade in on level load, fade out happens in script TransitionButton.cs
+	void OnLevelWasLoaded()
+	{
+		beginFade(-1);
+	}
+}
