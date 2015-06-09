@@ -1,0 +1,30 @@
+// Attached to start and back buttons
+
+using UnityEngine;
+using System.Collections;
+
+[RequireComponent(typeof(AudioSource))]
+
+public class TransitionButton : MonoBehaviour
+{
+	public string level;
+	private Vector3 adjustSize = new Vector3(0.05F, 0.05F, 0);
+
+	void OnMouseDown()
+	{
+		transform.localScale -= adjustSize;
+		audio.Play();
+	}
+	void OnMouseUp()
+	{
+		transform.localScale += adjustSize;
+
+		StartCoroutine("fadeOut");
+	}
+	IEnumerator fadeOut()
+	{
+		float fadeTime = GetComponent<SceneFader>().beginFade(1);
+		yield return new WaitForSeconds(fadeTime);
+		Application.LoadLevel(level);
+	}
+}
