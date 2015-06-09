@@ -1,0 +1,84 @@
+// Game controller script attached to the background game object
+
+using UnityEngine;
+using System.Collections;
+using System;
+
+[RequireComponent(typeof(AudioSource))]
+
+public class HappyChickenScript : MonoBehaviour
+{
+	public GameObject egg1;
+	public GameObject egg2;
+	public GameObject chicken;
+	public GameObject chick;
+
+	public Sprite moving;
+	public Sprite laying;
+	public int chickSpeed;
+
+	public GUIText scoreText;
+	private int score = 0;
+
+	void OnMouseDown()
+	{
+		// Get mouse position and move bird to it
+		Vector3 mouseWorldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		mouseWorldPoint.z = -1;
+		chicken.transform.position = mouseWorldPoint;
+		chicken.GetComponent<SpriteRenderer>().sprite = laying;
+		audio.Play();
+
+		StartCoroutine("eggChick");
+		incrementScore();
+	}
+
+	void OnMouseUp()
+	{
+		chicken.GetComponent<SpriteRenderer>().sprite = moving;
+	}
+
+	IEnumerator eggChick()
+	{
+		Vector3 eggPosition = chicken.transform.position;
+		eggPosition.z = 0;
+		eggPosition.y -= 0.55f;
+		Vector3 eggScreenPosition = Camera.main.WorldToScreenPoint(eggPosition);
+		GameObject eggClone;
+		GameObject chickClone;
+
+		// Pick random egg
+		System.Random rand = new System.Random();
+		int whichEgg = rand.Next(1,3);
+
+		// Spawn call
+		if (whichEgg == 1) {eggClone = Instantiate(egg1, eggPosition, transform.rotation) as GameObject;}
+		else {eggClone = Instantiate(egg2, eggPosition, transform.rotation) as GameObject;}
+
+		yield return new WaitForSeconds(2.0f);
+		Destroy(eggClone);
+		chickClone = Instantiate(chick, eggPosition, transform.rotation) as GameObject;
+		
+		if (eggScreenPosition.x > Screen.width/2)
+		{
+			chickClone.GetComponent<Rigidbody2D>().velocity = Vector3.right * chickSpeed;
+		}
+		else if (eggPosition.x <= Screen.width/2)
+		{
+			// (next 3 lines) Flip chick so its facing left
+			Quaternion chickRotation = transform.rotation;
+			chickRotation.y = 180;
+			chickClone.transform.rotation = chickRotation;
+			chickClone.GetComponent<Rigidbody2D>().velocity = Vector3.left * chickSpeed;
+		}
+
+		// 2nd arg is time to wait until chick is destroyed (compute wait time based on speed)
+		Destroy(chickClone, 8/Math.Abs((chickClone.GetComponent<Rigidbody2D>().velocity.x)));
+	}
+
+	void incrementScore()
+	{
+		score++;
+		scoreText.text = score.ToString();
+	}
+}
