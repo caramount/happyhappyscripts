@@ -1,0 +1,25 @@
+// Attached to mute Button
+
+using UnityEngine;
+using System.Collections;
+
+public class MuteButton : MonoBehaviour
+{
+	public Sprite muteSprite;
+	public Sprite speakSprite;
+
+	private new SpriteRenderer renderer;
+
+	void Start()
+	{
+		renderer = gameObject.GetComponent<SpriteRenderer>();
+		if (AudioListener.pause) renderer.sprite = muteSprite;
+	}
+
+	void OnMouseDown()
+	{
+		AudioListener.pause = !AudioListener.pause;
+		if (renderer.sprite == speakSprite) {renderer.sprite = muteSprite;}
+		else {renderer.sprite = speakSprite;}
+	}
+}
