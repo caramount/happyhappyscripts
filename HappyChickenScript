@@ -41,7 +41,8 @@ public class HappyChickenScript : MonoBehaviour
 
 		chicken.GetComponent<SpriteRenderer>().sprite = laying;
 		chicken.GetComponent<Rigidbody2D>().velocity = Vector3.up * chickenHop;
-		audio.Play();
+		// Only play sound when listening is not paused, otherwise sound will get queued and play at wrong time
+		if (!AudioListener.pause) {audio.Play();}
 
 		StartCoroutine("eggChick");
 		incrementScore();
