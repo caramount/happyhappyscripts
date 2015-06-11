@@ -1,0 +1,117 @@
+// Game controller script attached to the background game object (which has colliders for each egg area)
+
+using UnityEngine;
+using System.Collections;
+
+public class Matching : MonoBehaviour
+{
+	public GameObject egg1Prefab, egg2Prefab, chickPrefab1, chickPrefab2, chickPrefab3;
+
+	public GameObject egg1, egg2, egg3, egg4, egg5, egg6;
+
+	private GameObject chickClone1, chickClone2, chickClone3, chickClone4, chickClone5, chickClone6;
+	private GameObject[] chicksRevealed = new GameObject[2];
+	private GameObject[] eggsDestroyed = new GameObject[2];
+	private int reveals = 0;
+
+	void Start()
+	{
+		egg1 = Instantiate(egg1Prefab, egg1.transform.position, transform.rotation) as GameObject;
+		egg2 = Instantiate(egg2Prefab, egg2.transform.position, transform.rotation) as GameObject;
+		egg3 = Instantiate(egg1Prefab, egg3.transform.position, transform.rotation) as GameObject;
+		egg4 = Instantiate(egg2Prefab, egg4.transform.position, transform.rotation) as GameObject;
+		egg5 = Instantiate(egg1Prefab, egg5.transform.position, transform.rotation) as GameObject;
+		egg6 = Instantiate(egg2Prefab, egg6.transform.position, transform.rotation) as GameObject;
+
+		System.Random rand = new System.Random();
+		// Unfinished, need to make sure each color is assigned exactly 2 times, colors are currently
+		// hardcoded below
+		for (int i = 0; i < 6; i++)
+		{
+			int whichColor = rand.Next(1,4);
+		}
+	}
+
+	void OnMouseDown()
+	{
+		// Get click position to hatch appropriate egg
+		Vector3 mouseWorldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		if (mouseWorldPoint.x < -3)
+		{
+			// Dealing with egg1
+			chickClone1 = Instantiate(chickPrefab1, egg1.transform.position, transform.rotation) as GameObject;
+			chicksRevealed[reveals] = chickClone1;
+			eggsDestroyed[reveals] = egg1;
+			egg1.SetActive(false);
+		}
+		else if (mouseWorldPoint.y < 0 && mouseWorldPoint.x < 0)
+		{
+			// Dealing with egg4
+			chickClone4 = Instantiate(chickPrefab1, egg4.transform.position, transform.rotation) as GameObject;
+			chicksRevealed[reveals] = chickClone4;
+			eggsDestroyed[reveals] = egg4;
+			egg4.SetActive(false);
+		}
+		else if (mouseWorldPoint.x < 0)
+		{
+			// Dealing with egg2
+			chickClone2 = Instantiate(chickPrefab2, egg2.transform.position, transform.rotation) as GameObject;
+			chicksRevealed[reveals] = chickClone2;
+			eggsDestroyed[reveals] = egg2;
+			egg2.SetActive(false);
+		}
+		else if (mouseWorldPoint.x < 2 && mouseWorldPoint.y < 0)
+		{
+			// Dealing with egg5
+			chickClone5 = Instantiate(chickPrefab3, egg5.transform.position, transform.rotation) as GameObject;
+			chicksRevealed[reveals] = chickClone5;
+			eggsDestroyed[reveals] = egg5;
+			egg5.SetActive(false);
+		}
+		else if (mouseWorldPoint.y > 0)
+		{
+			// Dealing with egg 3
+			chickClone3 = Instantiate(chickPrefab3, egg3.transform.position, transform.rotation) as GameObject;
+			chicksRevealed[reveals] = chickClone3;
+			eggsDestroyed[reveals] = egg3;
+			egg3.SetActive(false);
+		}
+		else
+		{
+			// Dealing with egg 6
+			chickClone6 = Instantiate(chickPrefab2, egg6.transform.position, transform.rotation) as GameObject;
+			chicksRevealed[reveals] = chickClone6;
+			eggsDestroyed[reveals] = egg6;
+			egg6.SetActive(false);
+		}
+		reveals++;
+		StartCoroutine("checkMatch");
+	}
+
+	IEnumerator checkMatch()
+	{
+		if (reveals == 2)
+		{
+			// Set layer to ignore raycast (clicks) why match checking happens
+			this.gameObject.layer = 2;
+			if (chicksRevealed[0].GetComponent<SpriteRenderer>().color == chicksRevealed[1].GetComponent<SpriteRenderer>().color)
+			{
+				//match!
+				print("match!");
+			}
+			else
+			{
+				//no match, wait a few seconds to let player memorize then replace chicks with eggs
+				print("no match");
+				yield return new WaitForSeconds(3.0f);
+				Destroy(chicksRevealed[0]);
+				Destroy(chicksRevealed[1]);
+				eggsDestroyed[0].SetActive(true);
+				eggsDestroyed[1].SetActive(true);
+			}
+			reveals = 0;
+			this.gameObject.layer = 0;		
+		}
+		yield return new WaitForSeconds(1.0f);
+	}
+}
