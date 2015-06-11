@@ -1,0 +1,22 @@
+// Attached to restart button in match game
+
+using UnityEngine;
+using System.Collections;
+
+public class MatchRestartButton : MonoBehaviour
+{
+	public GUIText bestDisplay;
+
+	private Vector3 adjustSize = new Vector3(0.1F, 0.1F, 0);
+
+	void OnMouseDown()
+	{
+		transform.localScale -= adjustSize;
+	}
+
+	void OnMouseUp()
+	{
+		transform.localScale += adjustSize;
+		Application.LoadLevel("Matching");
+	}
+}
