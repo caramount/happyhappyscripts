@@ -6,7 +6,7 @@ using System;
 
 [RequireComponent(typeof(AudioSource))]
 
-public class HappyChickenScript : MonoBehaviour
+public class Click2Lay : MonoBehaviour
 {
 	public GameObject egg1;
 	public GameObject egg2;
@@ -14,8 +14,8 @@ public class HappyChickenScript : MonoBehaviour
 	public GameObject chickenGround;
 	public GameObject chick;
 
-	public Sprite moving;
-	public Sprite laying;
+	//public Sprite moving;
+	//public Sprite laying;
 	public int chickSpeed;
 	public int chickenHop;
 
@@ -39,7 +39,7 @@ public class HappyChickenScript : MonoBehaviour
 		groundPosition.y -= 1.5f;
 		chickenGround.transform.position = groundPosition;
 
-		chicken.GetComponent<SpriteRenderer>().sprite = laying;
+		//chicken.GetComponent<SpriteRenderer>().sprite = laying;
 		chicken.GetComponent<Rigidbody2D>().velocity = Vector3.up * chickenHop;
 		// Only play sound when listening is not paused, otherwise sound will get queued and play at wrong time
 		if (!AudioListener.pause) {audio.Play();}
@@ -50,7 +50,7 @@ public class HappyChickenScript : MonoBehaviour
 
 	void OnMouseUp()
 	{
-		chicken.GetComponent<SpriteRenderer>().sprite = moving;
+		//chicken.GetComponent<SpriteRenderer>().sprite = moving;
 	}
 
 	IEnumerator eggChick()
@@ -76,7 +76,10 @@ public class HappyChickenScript : MonoBehaviour
 		
 		if (eggScreenPosition.x > Screen.width/2)
 		{
-			chickClone.GetComponent<Rigidbody2D>().velocity = Vector3.right * chickSpeed;
+			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.up * chickenHop;
+			yield return new WaitForSeconds(0.45f);
+			chickClone.GetComponent<Rigidbody2D>().gravityScale = 0;
+			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.right * chickSpeed;
 		}
 		else if (eggPosition.x <= Screen.width/2)
 		{
@@ -84,7 +87,10 @@ public class HappyChickenScript : MonoBehaviour
 			Quaternion chickRotation = transform.rotation;
 			chickRotation.y = 180;
 			chickClone.transform.rotation = chickRotation;
-			chickClone.GetComponent<Rigidbody2D>().velocity = Vector3.left * chickSpeed;
+			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.up * chickenHop;
+			yield return new WaitForSeconds(0.45f);
+			chickClone.GetComponent<Rigidbody2D>().gravityScale = 0;
+			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.right * -chickSpeed;
 		}
 
 		// 2nd arg is time to wait until chick is destroyed (compute wait time based on speed)
