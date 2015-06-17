@@ -38,68 +38,27 @@ public class Matching : MonoBehaviour
 	{
 		// Get click position to hatch appropriate egg
 		Vector3 mouseWorldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		if (mouseWorldPoint.x < -3)
-		{
-			// Dealing with eggs[0]
-			colliders[0].enabled = false;
-			chickClones[0].SetActive(true);
-			chicksRevealed[reveals] = chickClones[0];
-			eggsDestroyed[reveals] = eggs[0];
-			collidersDisabled[reveals] = colliders[0];
-			eggs[0].SetActive(false);
-		}
-		else if (mouseWorldPoint.y < 0 && mouseWorldPoint.x < 0)
-		{
-			// Dealing with eggs[3]
-			colliders[3].enabled = false;
-			chickClones[3].SetActive(true);
-			chicksRevealed[reveals] = chickClones[3];
-			eggsDestroyed[reveals] = eggs[3];
-			collidersDisabled[reveals] = colliders[3];
-			eggs[3].SetActive(false);
-		}
-		else if (mouseWorldPoint.x < 0)
-		{
-			// Dealing with eggs[1]
-			colliders[1].enabled = false;
-			chickClones[1].SetActive(true);
-			chicksRevealed[reveals] = chickClones[1];
-			eggsDestroyed[reveals] = eggs[1];
-			collidersDisabled[reveals] = colliders[1];
-			eggs[1].SetActive(false);
-		}
-		else if (mouseWorldPoint.x < 2 && mouseWorldPoint.y < 0)
-		{
-			// Dealing with eggs[4]
-			colliders[4].enabled = false;
-			chickClones[4].SetActive(true);
-			chicksRevealed[reveals] = chickClones[4];
-			eggsDestroyed[reveals] = eggs[4];
-			collidersDisabled[reveals] = colliders[4];
-			eggs[4].SetActive(false);
-		}
-		else if (mouseWorldPoint.y > 0)
-		{
-			// Dealing with eggs[2]
-			colliders[2].enabled = false;
-			chickClones[2].SetActive(true);
-			chicksRevealed[reveals] = chickClones[2];
-			eggsDestroyed[reveals] = eggs[2];
-			collidersDisabled[reveals] = colliders[2];
-			eggs[2].SetActive(false);
-		}
-		else
-		{
-			// Dealing with eggs[5]
-			colliders[5].enabled = false;
-			chickClones[5].SetActive(true);
-			chicksRevealed[reveals] = chickClones[5];
-			eggsDestroyed[reveals] = eggs[5];
-			collidersDisabled[reveals] = colliders[5];
-			eggs[5].SetActive(false);
-		}
+
+		//Check location of click to determine which spot was clicked
+		if (mouseWorldPoint.x < -3) 								{mouseHitSpot(0);}
+		else if (mouseWorldPoint.y < 0 && mouseWorldPoint.x < 0) 	{mouseHitSpot(3);}
+		else if (mouseWorldPoint.x < 0) 							{mouseHitSpot(1);}
+		else if (mouseWorldPoint.x < 2 && mouseWorldPoint.y < 0) 	{mouseHitSpot(4);}
+		else if (mouseWorldPoint.y > 0) 							{mouseHitSpot(2);}
+		else 														{mouseHitSpot(5);}
+		
 		reveals++;
 		StartCoroutine("checkMatch");
+	}
+
+	void mouseHitSpot(int spot)
+	{
+		colliders[spot].enabled = false;
+		chickClones[spot].SetActive(true);
+		chicksRevealed[reveals] = chickClones[spot];
+		eggsDestroyed[reveals] = eggs[spot];
+		collidersDisabled[reveals] = colliders[spot];
+		eggs[spot].SetActive(false);
 	}
 
 	void OnGUI()
@@ -126,7 +85,7 @@ public class Matching : MonoBehaviour
 			}
 			else
 			{
-				//no match, wait a few seconds to let player memorize then replace chicks with eggs
+				//no match, wait to let player memorize, then replace chicks with eggs
 				yield return new WaitForSeconds(1.5f);
 				chicksRevealed[0].SetActive(false);
 				chicksRevealed[1].SetActive(false);
@@ -149,17 +108,16 @@ public class Matching : MonoBehaviour
 			}
 			paused = true;
 		}
+		// Game not won, reset layer to pick up clicks
 		else {this.gameObject.layer = 0;}	
-		//yield return new WaitForSeconds(1.0f);
 	}
 
 	void randomize()
 	{
 		System.Random rand = new System.Random();
-		// Unfinished, need to make sure each color is assigned exactly 2 times, colors are currently
-		// hardcoded below
 		int whichColor, count1 = 0, count2 = 0, count3 = 0, i = 0;
 		bool iterationIsValid;
+
 		while (count1 != 2 || count2 != 2 || count3 != 2)
 		{
 			//print(count1 + "\n" + count2 + "\n" + count3);
