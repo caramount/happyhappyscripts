@@ -1,17 +1,20 @@
-// Attached to restart button in match game
+// Attached to start and back buttons
 
 using UnityEngine;
 using System.Collections;
+
+[RequireComponent(typeof(AudioSource))]
 
 public class MatchRestartButton : MonoBehaviour
 {
 	public GUIText bestDisplay;
 
-	private Vector3 adjustSize = new Vector3(0.1F, 0.1F, 0);
+	private Vector3 adjustSize = new Vector3(0.05F, 0.05F, 0);
 
 	void OnMouseDown()
 	{
 		transform.localScale -= adjustSize;
+		audio.Play();
 	}
 
 	void OnMouseUp()
