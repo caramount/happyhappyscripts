@@ -7,8 +7,6 @@ using System.Collections;
 
 public class MatchRestartButton : MonoBehaviour
 {
-	public GUIText bestDisplay;
-
 	private Vector3 adjustSize = new Vector3(0.05F, 0.05F, 0);
 
 	void OnMouseDown()
