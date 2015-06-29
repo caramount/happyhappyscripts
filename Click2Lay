@@ -17,7 +17,7 @@ public class Click2Lay : MonoBehaviour
 	//public Sprite moving;
 	//public Sprite laying;
 	public int chickSpeed;
-	public int chickenHop;
+	public int hop;
 
 	public GUIText scoreText;
 	private int score = 0;
@@ -40,7 +40,7 @@ public class Click2Lay : MonoBehaviour
 		chickenGround.transform.position = groundPosition;
 
 		//chicken.GetComponent<SpriteRenderer>().sprite = laying;
-		chicken.GetComponent<Rigidbody2D>().velocity = Vector3.up * chickenHop;
+		chicken.GetComponent<Rigidbody2D>().velocity = Vector3.up * hop;
 		// Only play sound when listening is not paused, otherwise sound will get queued and play at wrong time
 		if (!AudioListener.pause) {audio.Play();}
 
@@ -76,8 +76,10 @@ public class Click2Lay : MonoBehaviour
 		
 		if (eggScreenPosition.x > Screen.width/2)
 		{
-			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.up * chickenHop;
-			yield return new WaitForSeconds(0.45f);
+			// Next 3 lines: these are found in else if as well, make chick hop up and then turn off gravity
+			// to make it appear to land
+			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.up * hop;
+			yield return new WaitForSeconds((float)(hop/9f));
 			chickClone.GetComponent<Rigidbody2D>().gravityScale = 0;
 			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.right * chickSpeed;
 		}
@@ -87,8 +89,8 @@ public class Click2Lay : MonoBehaviour
 			Quaternion chickRotation = transform.rotation;
 			chickRotation.y = 180;
 			chickClone.transform.rotation = chickRotation;
-			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.up * chickenHop;
-			yield return new WaitForSeconds(0.45f);
+			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.up * hop;
+			yield return new WaitForSeconds((float)(hop/9f));
 			chickClone.GetComponent<Rigidbody2D>().gravityScale = 0;
 			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.right * -chickSpeed;
 		}
