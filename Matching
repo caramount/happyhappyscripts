@@ -12,13 +12,19 @@ public class Matching : MonoBehaviour
 	public GUIText timer, bestDisplay;
 	public Collider2D[] colliders = new Collider2D[6];
 
-	private GameObject[] chickClones = new GameObject[6];
-	private GameObject[] chicksRevealed = new GameObject[2];
-	private GameObject[] eggsDestroyed = new GameObject[2];
+	public int hop;
+
+	private GameObject[] eggClones = new GameObject[6];
+	private GameObject[] eggsRevealed = new GameObject[2];
 	private Collider2D[] collidersDisabled = new Collider2D[2];
+	private bool[] eggPopping = new bool[6];
 	private int timePassed, startTime, reveals = 0, matches = 0;
 	private static int bestTime = 100;
 	private bool paused = false;
+
+	private Vector3 scale = new Vector3(0.1f, 0.1f, 1f);
+	private Vector3 startSize = new Vector3(0.1f, 0.1f, 1f);
+	private	Vector3 endSize = new Vector3(0.7f, 0.7f, 1f);
 
 	void Start()
 	{
@@ -26,14 +32,19 @@ public class Matching : MonoBehaviour
 		restartButton.SetActive(false);
 		restartButton.layer = 2;
 		if (bestTime != 100) {bestDisplay.text = "Best time: " + bestTime;}
-		//eggs[0] = Instantiate(egg1Prefab, eggs[0].transform.position, transform.rotation) as GameObject;
-		//eggs[1] = Instantiate(egg2Prefab, eggs[1].transform.position, transform.rotation) as GameObject;
-		//eggs[2] = Instantiate(egg1Prefab, eggs[2].transform.position, transform.rotation) as GameObject;
-		//eggs[3] = Instantiate(egg2Prefab, eggs[3].transform.position, transform.rotation) as GameObject;
-		//eggs[4] = Instantiate(egg1Prefab, eggs[4].transform.position, transform.rotation) as GameObject;
-		//eggs[5] = Instantiate(egg2Prefab, eggs[5].transform.position, transform.rotation) as GameObject;
-
 		randomize();
+	}
+
+	void Update()
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			if (eggPopping[i])
+			{
+				eggClones[i].transform.localScale += scale;
+				if (eggClones[i].transform.localScale.x >= endSize.x) eggPopping[i] = false;
+			}
+		}
 	}
 
 	void OnMouseDown()
@@ -59,9 +70,9 @@ public class Matching : MonoBehaviour
 	void mouseHitSpot(int spot)
 	{
 		colliders[spot].enabled = false;
-		chickClones[spot].SetActive(true);
-		chicksRevealed[reveals] = chickClones[spot];
-		eggsDestroyed[reveals] = eggs[spot];
+		eggClones[spot].SetActive(true);
+		eggsRevealed[reveals] = eggClones[spot];	
+		eggPopping[spot] = true;
 		collidersDisabled[reveals] = colliders[spot];
 		eggs[spot].SetActive(false);
 	}
@@ -82,24 +93,36 @@ public class Matching : MonoBehaviour
 		this.gameObject.layer = 2;
 		if (reveals == 2)
 		{
-			if (chicksRevealed[0].GetComponent<SpriteRenderer>().sprite == 
-				chicksRevealed[1].GetComponent<SpriteRenderer>().sprite)
+			if (eggsRevealed[0].GetComponent<SpriteRenderer>().sprite == 
+				eggsRevealed[1].GetComponent<SpriteRenderer>().sprite)
 			{
 				//match!
+				// Make eggs hop
+				eggsRevealed[0].GetComponent<Rigidbody2D>().gravityScale = 2;
+				eggsRevealed[1].GetComponent<Rigidbody2D>().gravityScale = 2;				
+				eggsRevealed[0].GetComponent<Rigidbody2D>().velocity = Vector2.up * hop;
+				eggsRevealed[1].GetComponent<Rigidbody2D>().velocity = Vector2.up * hop;
+				// Results in inconsistent landing height (cuz floats probably), but it's ok
+				yield return new WaitForSeconds((float)(hop/10.347f));
+				eggsRevealed[0].GetComponent<Rigidbody2D>().gravityScale = 0;
+				eggsRevealed[1].GetComponent<Rigidbody2D>().gravityScale = 0;
+				eggsRevealed[0].GetComponent<Rigidbody2D>().velocity = Vector2.up * 0;
+				eggsRevealed[1].GetComponent<Rigidbody2D>().velocity = Vector2.up * 0;
+
 				matches++;
 			}
 			else
 			{
-				//no match, wait to let player memorize, then replace chicks with eggs
+				//no match, wait to let player memorize, then remove eggs
 				yield return new WaitForSeconds(1.0f);
-				chicksRevealed[0].SetActive(false);
-				chicksRevealed[1].SetActive(false);
-				eggsDestroyed[0].SetActive(true);
-				eggsDestroyed[1].SetActive(true);
+				eggsRevealed[0].SetActive(false);
+				eggsRevealed[1].SetActive(false);
+				eggsRevealed[0].transform.localScale = startSize;
+				eggsRevealed[1].transform.localScale = startSize;
 				collidersDisabled[0].enabled = true;
 				collidersDisabled[1].enabled = true;
-			}
-			reveals = 0;	
+			}	
+			reveals = 0;
 		}
 		// Game won
 		if (matches == 3)
@@ -113,7 +136,7 @@ public class Matching : MonoBehaviour
 			}
 			paused = true;
 		}
-		// Game not won, reset layer to pick up clicks
+		// Game not won, reset layer to notice clicks
 		else {this.gameObject.layer = 0;}	
 	}
 
@@ -131,24 +154,24 @@ public class Matching : MonoBehaviour
 			if (whichColor == 1 && count1 < 2) 
 			{
 				iterationIsValid = true;
-				chickClones[i] = Instantiate(chickPrefab1, eggs[i].transform.position, transform.rotation) as GameObject;
+				eggClones[i] = Instantiate(chickPrefab1, eggs[i].transform.position, transform.rotation) as GameObject;
 				count1++;
 			}
 			else if (whichColor == 2 && count2 < 2)
 			{
 				iterationIsValid = true;
-				chickClones[i] = Instantiate(chickPrefab2, eggs[i].transform.position, transform.rotation) as GameObject;
+				eggClones[i] = Instantiate(chickPrefab2, eggs[i].transform.position, transform.rotation) as GameObject;
 				count2++;
 			}
 			else if (whichColor == 3 && count3 < 2)
 			{
 				iterationIsValid = true;
-				chickClones[i] = Instantiate(chickPrefab3, eggs[i].transform.position, transform.rotation) as GameObject;
+				eggClones[i] = Instantiate(chickPrefab3, eggs[i].transform.position, transform.rotation) as GameObject;
 				count3++;
 			}
 			if (iterationIsValid)
 			{
-				chickClones[i].SetActive(false);
+				eggClones[i].SetActive(false);
 				i++;
 			}
 		}
