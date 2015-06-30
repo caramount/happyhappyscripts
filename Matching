@@ -5,10 +5,12 @@ using System.Collections;
 
 [RequireComponent(typeof(AudioSource))]
 
+// Code for a "Best Time" display is commented out (per izzy's suggestion) but I'm leaving it in case 
+// you ever want to enable it, there is a best time object in the scene hierarchy set up for this
 public class Matching : MonoBehaviour
 {
-	public GameObject egg1Prefab, egg2Prefab, chickPrefab1, chickPrefab2, chickPrefab3, restartButton;
-	public GameObject[] eggs = new GameObject[6];
+	public GameObject eggPrefab1, eggPrefab2, eggPrefab3, restartButton;
+	public GameObject[] nests = new GameObject[6];
 	public GUIText timer, bestDisplay;
 	public Collider2D[] colliders = new Collider2D[6];
 
@@ -19,9 +21,10 @@ public class Matching : MonoBehaviour
 	private Collider2D[] collidersDisabled = new Collider2D[2];
 	private bool[] eggPopping = new bool[6];
 	private int timePassed, startTime, reveals = 0, matches = 0;
-	private static int bestTime = 100;
+	//private static int bestTime = 100;
 	private bool paused = false;
 
+	// For egg popping up animation
 	private Vector3 scale = new Vector3(0.1f, 0.1f, 1f);
 	private Vector3 startSize = new Vector3(0.1f, 0.1f, 1f);
 	private	Vector3 endSize = new Vector3(0.7f, 0.7f, 1f);
@@ -29,14 +32,14 @@ public class Matching : MonoBehaviour
 	void Start()
 	{
 		startTime = (int)Time.time;
-		restartButton.SetActive(false);
-		restartButton.layer = 2;
-		if (bestTime != 100) {bestDisplay.text = "Best time: " + bestTime;}
+		//if (bestTime != 100) {bestDisplay.text = "Best time: " + bestTime;}
 		randomize();
 	}
 
 	void Update()
 	{
+		// Check each boolean in eggPopping[6] to see if the corresponding egg should be animated and
+		// if so apply animation for that frame by adding scale to egg's localScale value
 		for (int i = 0; i < 6; i++)
 		{
 			if (eggPopping[i])
@@ -69,16 +72,21 @@ public class Matching : MonoBehaviour
 
 	void mouseHitSpot(int spot)
 	{
+		// Turn off collider so nest can't be clicked again before match checking happens
 		colliders[spot].enabled = false;
+		// Make egg visible and set boolean so it will animate in Update()
 		eggClones[spot].SetActive(true);
-		eggsRevealed[reveals] = eggClones[spot];	
 		eggPopping[spot] = true;
+		// Store egg so it can be bounced or made to disappear after checking happens
+		eggsRevealed[reveals] = eggClones[spot];
+		// Store collider so it can be re-enabled if no match
 		collidersDisabled[reveals] = colliders[spot];
-		eggs[spot].SetActive(false);
 	}
 
+	// This gets called every graphics rendering cycle, so multiple times a second
 	void OnGUI()
 	{
+		// Timer code
 		if (paused == false)
 		{
 			timePassed = (int)Time.time - startTime;
@@ -89,7 +97,7 @@ public class Matching : MonoBehaviour
 
 	IEnumerator checkMatch()
 	{
-		// Set layer to ignore raycast (clicks) while match checking happens
+		// Set layer to ignore raycast (clicks/touches) while match checking happens
 		this.gameObject.layer = 2;
 		if (reveals == 2)
 		{
@@ -129,17 +137,18 @@ public class Matching : MonoBehaviour
 		{
 			restartButton.SetActive(true);
 			restartButton.layer = 0;
-			if (timePassed < bestTime)
-			{
-				bestDisplay.text = "Best time: " + timePassed.ToString();
-				bestTime = timePassed;
-			}
+			//if (timePassed < bestTime)
+			//{
+			//	bestDisplay.text = "Best time: " + timePassed.ToString();
+			//	bestTime = timePassed;
+			//}
 			paused = true;
 		}
 		// Game not won, reset layer to notice clicks
 		else {this.gameObject.layer = 0;}	
 	}
 
+	// Randomizes the nests
 	void randomize()
 	{
 		System.Random rand = new System.Random();
@@ -154,19 +163,19 @@ public class Matching : MonoBehaviour
 			if (whichColor == 1 && count1 < 2) 
 			{
 				iterationIsValid = true;
-				eggClones[i] = Instantiate(chickPrefab1, eggs[i].transform.position, transform.rotation) as GameObject;
+				eggClones[i] = Instantiate(eggPrefab1, nests[i].transform.position, transform.rotation) as GameObject;
 				count1++;
 			}
 			else if (whichColor == 2 && count2 < 2)
 			{
 				iterationIsValid = true;
-				eggClones[i] = Instantiate(chickPrefab2, eggs[i].transform.position, transform.rotation) as GameObject;
+				eggClones[i] = Instantiate(eggPrefab2, nests[i].transform.position, transform.rotation) as GameObject;
 				count2++;
 			}
 			else if (whichColor == 3 && count3 < 2)
 			{
 				iterationIsValid = true;
-				eggClones[i] = Instantiate(chickPrefab3, eggs[i].transform.position, transform.rotation) as GameObject;
+				eggClones[i] = Instantiate(eggPrefab3, nests[i].transform.position, transform.rotation) as GameObject;
 				count3++;
 			}
 			if (iterationIsValid)

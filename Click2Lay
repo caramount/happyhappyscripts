@@ -14,8 +14,6 @@ public class Click2Lay : MonoBehaviour
 	public GameObject chickenGround;
 	public GameObject chick;
 
-	//public Sprite moving;
-	//public Sprite laying;
 	public int chickSpeed;
 	public int hop;
 
@@ -24,7 +22,9 @@ public class Click2Lay : MonoBehaviour
 
 	void Start()
 	{
-		// Ignore collision between player and background colliders (this assumes player is on layer Ignore Raycast)
+		// Since chick and background both have colliders attached and will be overlapped, we need to
+		// tell Unity to ignore collision between chick and background 
+		// (this call assumes chick is on layer Ignore Raycast (layer 2))
 		Physics2D.IgnoreLayerCollision(2, 0, true);
 	}
 	void OnMouseDown()
@@ -39,18 +39,12 @@ public class Click2Lay : MonoBehaviour
 		groundPosition.y -= 1.5f;
 		chickenGround.transform.position = groundPosition;
 
-		//chicken.GetComponent<SpriteRenderer>().sprite = laying;
 		chicken.GetComponent<Rigidbody2D>().velocity = Vector3.up * hop;
 		// Only play sound when listening is not paused, otherwise sound will get queued and play at wrong time
 		if (!AudioListener.pause) {audio.Play();}
 
 		StartCoroutine("eggChick");
 		incrementScore();
-	}
-
-	void OnMouseUp()
-	{
-		//chicken.GetComponent<SpriteRenderer>().sprite = moving;
 	}
 
 	IEnumerator eggChick()
@@ -70,14 +64,16 @@ public class Click2Lay : MonoBehaviour
 		if (whichEgg == 1) {eggClone = Instantiate(egg1, eggPosition, transform.rotation) as GameObject;}
 		else {eggClone = Instantiate(egg2, eggPosition, transform.rotation) as GameObject;}
 
+		// Wait for hatching animation to finish, then destroy egg and instantiate walking chick
 		yield return new WaitForSeconds(2.0f);
 		Destroy(eggClone);
 		chickClone = Instantiate(chick, eggPosition, transform.rotation) as GameObject;
 		
+		// Walk left or right depending on where egg is spawned on screen
 		if (eggScreenPosition.x > Screen.width/2)
 		{
-			// Next 3 lines: these are found in else if as well, make chick hop up and then turn off gravity
-			// to make it appear to land
+			// Next 3 lines: these are found in else if as well, make chick hop up and then wait for gravity to
+			// pull it back to starting spot and turn off gravity to make it appear to land
 			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.up * hop;
 			yield return new WaitForSeconds((float)(hop/9f));
 			chickClone.GetComponent<Rigidbody2D>().gravityScale = 0;
@@ -95,7 +91,7 @@ public class Click2Lay : MonoBehaviour
 			chickClone.GetComponent<Rigidbody2D>().velocity = Vector2.right * -chickSpeed;
 		}
 
-		// 2nd arg is time to wait until chick is destroyed (compute wait time based on speed)
+		// 2nd arg is time to wait until chick is off of screen to destroy it (compute wait time based on speed)
 		Destroy(chickClone, 8/Math.Abs((chickClone.GetComponent<Rigidbody2D>().velocity.x)));
 	}
 
